@@ -112,11 +112,11 @@ public class Maze extends JPanel implements Runnable {
     public void run() {
             // run method for thread repeatedly makes a maze and then solves it
     	// wait a bit before starting
-        while (mazeExists = true) {
+      //  while (mazeExists = true) {
             makeMaze();
             solveMaze(1,1);
         }
-    }
+   // }
 
     void makeMaze() {
             // Create a random maze.  The strategy is to start with
