@@ -2,14 +2,19 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Creates a random maze, then solves it by finding a path from the
- * upper left corner to the lower right corner.  (After doing
- * one maze, it waits a while then starts over by creating a
- * new random maze.)
+ * Authors: Harsh Bhatt, Anthony Hsia, Anthony Lie, Abdullah Khan
+ * Credit to Princeton University's maze.java and Hobbart and William
+ * Smith Colleges maze.java for helping us on hoe to create a maze.
+ * The purpose of this program is to create a maze by a user specified
+ * dimension, and then solve the maze using a DFS algorithm. The program will
+ * end once it has finished locating a path, and a completion time value 
+ * will be stored.
  */
 public class Maze extends JPanel implements Runnable {
     
-    // a main routine makes it possible to run this class as a program
+    // Main method to run the program, 
+	//PRECONDITION: user must enter integer dimensions
+	//POST CONDITION: creates a maze of specified dimension and solves using DFS.
     public static void main(String[] args) {
         JFrame window = new JFrame("DFS Random Maze Solve");
         window.setContentPane(new Maze());
@@ -20,17 +25,17 @@ public class Maze extends JPanel implements Runnable {
     }
     
 
-    int[][] maze;   // Description of state of maze.  The value of maze[i][j]
-                    // is one of the constants wall, path, empty,
-                    // or visited.  (Value can also be negative, temporarily,
-                    // inside createMaze().)
-                    //    A maze is made up of walls and corridors.  maze[i][j]
-                    // is either part of a wall or part of a corridor.  A cell
-                    // cell that is part of a corridor is represented by path
-                    // if it is part of the current path through the maze, by
-                    // visited if it has already been explored without finding
-                    // a solution, and by empty if it has not yet been explored.
-
+    int[][] maze;   // This will create a state of a maze. A maze[i][j] can be
+    				// used to represent a wall, path, empty, or visited
+    				// section of a maze.
+                    //    A maze is supposed to contain a set number of walls
+    				// and corridors. The value for maze[i][j] is either going 
+                    // to be a wall or a corridor based on this definition.
+    				// The current path of the maze will contain a cell, a cell
+                    // will be labeled as visited if it has already been 
+    				// explore, or empty if it is undiscovered.
+    
+    //These are the necessary valued needed to create a state of a maze.
     final static int bgcode = 0;
     final static int wall = 1;
     final static int path = 2;
@@ -38,33 +43,29 @@ public class Maze extends JPanel implements Runnable {
     final static int visited = 4;
 
 
-    Color[] color;          // colors associated with the preceding 5 constants;
-    int rows = 101;          // number of rows of cells in maze, including a wall around edges
-    int columns = 131;       // number of columns of cells in maze, including a wall around edges
-    int border = 0;         // minimum number of pixels between maze and edge of panel  
-    int solvespeed = 10;    // short delay between steps in solving maze
-    int createspeed = 2;	// delay in breaking down walls/ making the maze
-    int cellsize = 12;     // size of each cell
+    Color[] color;          // an array of colors to be used for our maze values defined earlier.
+    int rows = 101;          // the row of cells in a maze, including the walls
+    int columns = 131;       // number of column cells in a maze, including the walls
+    int border = 0;         // number of pixels separating maze and non-maze parts  
+    int solvespeed = 10;    // we can adjust this value to make is easier to see how the maze is solving.
+    int createspeed = 2;	// the same speed adjustment, but for the creation of the maze
+    int cellsize = 12;     // the cell size
 
-    int width = -1;   // width of panel, to be set by identifysize()
-    int height = -1;  // height of panel, to be set by identifysize()
+    int width = -1;   // width of the panel holding the maze, created with identifysize()
+    int height = -1;  // height of the panel holding the maze, created with identifysize()
 
-    int widthtotal;   // width of panel, minus border area (set in identifysize())
-    int heighttotal;  // height of panel, minus border area (set in identifysize())
-    int left;         // left edge of maze, allowing for border (set in identifysize())
-    int top;          // top edge of maze, allowing for border (set in identifysize())
+    int widthtotal;   // same width as before, but without the border area.
+    int heighttotal;  // same height as before, but without border area
+    int left;         // border for the left side of the maze
+    int top;          // border for top edge of the maze
 
-    boolean mazeExists = false; // set to true when maze[][] is valid; used in
-                                // redrawMaze(); set to true in createMaze(), and
-                                // reset to false in run()
+    boolean mazeExists = false; // will allow us to know if a maze is successfully created; used in
+    							// createmaze() and redrawmaze()
+                                
 
-    /*
-     * 
-     * We can get user input for the size of the maze and the speed at which it should create/solve the maze if we have the time for it.
-     * 
-     */
+    // We can retrieve user input for the size of the maze they wish to solve.
 
-
+    // Maze constructor
     public Maze() {
         color = new Color[] {
             new Color(0,0,0),
@@ -78,15 +79,18 @@ public class Maze extends JPanel implements Runnable {
         new Thread(this).start();
     }
 
-
+    // Will prevent paint from being called two times, this method paints the maze and helps with Drawing
+    // PRECONDITION: need a size for the maze
+    // POSTCONDITION: will paint a maze with the color based on the size.
     synchronized protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         identifysize();
         redrawMaze(g);
     }
     
+    // We need to know the size in order to draw the maze.
     void identifysize() {
-        // Called before drawing the maze, to set parameters used for drawing.
+        // Again, this must be called before drawing so that the maze can be painted successfully.
     	if (getWidth() != width || getHeight() != height) {
     		width  = getWidth();
     		height = getHeight();
@@ -100,34 +104,35 @@ public class Maze extends JPanel implements Runnable {
     }
 
     void CreateMaze() {
-            // Create a random maze.  The strategy is to start with
-            // a grid of disconnected "rooms" separated by walls.
-            // then look at each of the separating walls, in a random
-            // order.  If tearing down a wall would not create a loop
-            // in the maze, then tear it down.  Otherwise, leave it in place.
+            // The purpose of this method is to create a random maze.
+    		// We do this by imagining a set of disconnected 
+    		// rooms that are separated by walls. We look at each of 
+    		// the separating walls in a random order. Tear down the walls
+    		// as long as it does not create a LOOP in the maze.
+          
         if (maze == null){
             maze = new int[rows][columns];
         }
         int i,j;
-        int numrooms = 0; // number of rooms
-        int numwalls = 0;  // number of walls
-        int[] rowwalls = new int[(rows*columns)/2];  // position of walls between rooms
+        int numrooms = 0; // number of rooms as described earlier
+        int numwalls = 0;  // number of walls as described earlier
+        int[] rowwalls = new int[(rows*columns)/2];  // this will position our walls between the rooms
         int[] colwalls = new int[(rows*columns)/2];
-        for (i = 0; i<rows; i++){  // start with everything being a wall
+        for (i = 0; i<rows; i++){  // we must begin with everything being a wall
             for (j = 0; j < columns; j++){
                 maze[i][j] = wall;
             }
         }
-        for (i = 1; i<rows-1; i += 2){  // make a grid of empty rooms
+        for (i = 1; i<rows-1; i += 2){  // we must make sure to have a grid of empty rooms
             for (j = 1; j<columns-1; j += 2) {
                 numrooms++;
-                maze[i][j] = -numrooms;  // each room is represented by a different negative number
-                if (i < rows-2) {  // record info about wall below this room
+                maze[i][j] = -numrooms;  // we can represent these rooms with a nonnegative number
+                if (i < rows-2) {  // this gets information about a wall below a room
                     rowwalls[numwalls] = i+1;
                     colwalls[numwalls] = j;
                     numwalls++;
                 }
-                if (j < columns-2) {  // record info about wall to right of this room
+                if (j < columns-2) {  // retrieves information about a wall to the right of this room
                     rowwalls[numwalls] = i;
                     colwalls[numwalls] = j+1;
                     numwalls++;
@@ -138,36 +143,38 @@ public class Maze extends JPanel implements Runnable {
         repaint();
         int r;
         for (i=numwalls-1; i>0; i--) {
-            r = (int)(Math.random() * i);  // choose a wall randomly and maybe tear it down
+            r = (int)(Math.random() * i);  // randomly chooses a wall and may or may not tear it down
             tearDown(rowwalls[r],colwalls[r]);
             rowwalls[r] = rowwalls[i];
             colwalls[r] = colwalls[i];
         }
-        for (i=1; i<rows-1; i++){  // replace negative values in maze[][] with empty
+        for (i=1; i<rows-1; i++){  // replace nonnegative values in a maze[][] with empty instead
             for (j=1; j<columns-1; j++){
                 if (maze[i][j] < 0)
                     maze[i][j] = empty;
             }
         }
     }
-
+    // used to make sure tearDown() is not being run twice at the same time
     synchronized void tearDown(int row, int column) {
-            // Tear down a wall, unless doing so will form a loop.  Tearing down a wall
-            // joins two "rooms" into one "room".  (Rooms begin to look like corridors
-            // as they grow.)  When a wall is torn down, the room codes on one side are
-            // converted to match those on the other side, so all the cells in a room
-            // have the same code.   Note that if the room codes on both sides of a
-            // wall already have the same code, then tearing down that wall would 
-            // create a loop, so the wall is left in place.
+    		// The purpose of this method is to tear down random walls unless doing so will
+    		// for a LOOP. This action will merge two rooms, because there will be 
+    		// no wall between them. As this method continues to perform on a maze, 
+    		// rooms will begin to look like corridors. When two rooms combine, 
+    		// their codes must match. The cells in a room must have the same code.
+    		// The way we can know that tearing down a wall will create a loop is
+    		// if the room codes before tearing down that wall are already the same.
+    		// In this case, leave the wall alone.
+           
         if (row % 2 == 1 && maze[row][column-1] != maze[row][column+1]) {
-            // row is odd; wall separates rooms horizontally
+            // if the row is odd, the walls will separate the rooms horizontally.
             fill(row, column-1, maze[row][column-1], maze[row][column+1]);
             maze[row][column] = maze[row][column+1];
             repaint();
             try { wait(createspeed); }
             catch (InterruptedException e) { }
         }else if (row % 2 == 0 && maze[row-1][column] != maze[row+1][column]) {
-            // row is even; wall separates rooms vertically
+            // if a row is even, the walls will separate the rooms vertically.
             fill(row-1, column, maze[row-1][column], maze[row+1][column]);
             maze[row][column] = maze[row+1][column];
             repaint();
@@ -177,7 +184,7 @@ public class Maze extends JPanel implements Runnable {
     }
 
     void fill(int row, int column, int replace, int replaceWith) {
-            // called by tearDown() to change "room codes".
+            // this method is called by tearDown to change the room codes 
         if (maze[row][column] == replace) {
             maze[row][column] = replaceWith;
             fill(row+1,column,replace,replaceWith);
@@ -187,33 +194,34 @@ public class Maze extends JPanel implements Runnable {
         }
     }
     boolean MazeSolver(int row, int col) {
-            // Try to solve the maze by continuing current path from position
-            // (row,col).  Return true if a solution is found.  The maze is
-            // considered to be solved if the path reaches the lower right cell.
+    		// Solves the maze with a DFS implementation. Returns true if a 
+    		// solution to this maze is found. We considered a maze to be 
+    		// solved it it reaches the lower right cell.
+           
     	if (maze[row][col] == empty) {
-            maze[row][col] = path;      // add this cell to the path
+            maze[row][col] = path;      // adds a cell to a path
             repaint();
             if (row == rows-2 && col == columns-2)
-                return true;  // path has reached goal
+                return true;  // the path has successfully reached its goal
             try {Thread.sleep(solvespeed); }
             catch (InterruptedException e) { }
-            if ( MazeSolver(row-1,col)  ||     // try to solve maze by extending path
-                    MazeSolver(row,col-1)  ||     //    in each possible direction
+            if ( MazeSolver(row-1,col)  ||     // this will try to solve the maze by extending the path
+                    MazeSolver(row,col-1)  ||     // in each direction it can
                     MazeSolver(row+1,col)  ||
                     MazeSolver(row,col+1) )
                 return true;
-            // maze can't be solved from this cell, so backtrack out of the cell
-            maze[row][col] = visited;   // mark cell as having been visited
+            // we have reached a dead end, backtrack
+            maze[row][col] = visited;   // this will mark visited cells.
             repaint();
           
         }
         return false;
     }
     void redrawMaze(Graphics g) {
-        // draws the entire maze
+        // The purpose of this method is to draw the maze.
     	if (mazeExists) {
-            int w = widthtotal / columns;  // width of each cell
-            int h = heighttotal / rows;    // height of each cell
+            int w = widthtotal / columns;  // width of the maze cell
+            int h = heighttotal / rows;    //height of the maze cell
             for (int j=0; j<columns; j++){
                 for (int i=0; i<rows; i++) {
                     if (maze[i][j] < 0)
@@ -228,7 +236,7 @@ public class Maze extends JPanel implements Runnable {
 
     
     public void run() {
-        // run method for thread makes a maze and solves it.
+        //	the purpose of this method is to create a thread that creates a maze and solves it.
         CreateMaze();
         MazeSolver(1,1);
     }
