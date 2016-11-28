@@ -1,5 +1,12 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Scanner;
+
 import javax.swing.*;
+
+
+
 
 /**
  * Authors: Harsh Bhatt, Anthony Hsia, Anthony Lie, Abdullah Khan
@@ -10,20 +17,47 @@ import javax.swing.*;
  * end once it has finished locating a path, and a completion time value 
  * will be stored.
  */
-public class Maze extends JPanel implements Runnable {
+
+
+public class Maze extends JPanel implements Runnable{
+	static Scanner scan = new Scanner(System.in);
+    static JFrame window = new JFrame("DFS Random Maze Solve");
     
+    	//To reference dimension (user inputed) from StyleOptionsPanel class to Maze class.
+     static int b;
+     static int c;  
+     static int temp1;
+     static int temp2;
+     static int counter;
     // Main method to run the program, 
 	//PRECONDITION: user must enter integer dimensions
 	//POST CONDITION: creates a maze of specified dimension and solves using DFS.
-    public static void main(String[] args) {
-        JFrame window = new JFrame("DFS Random Maze Solve");
+    public static void main(String[] args){
+    	System.out.println("Enter numbers for rows and columns: ");
+    	b=scan.nextInt();
+    	c=scan.nextInt(); 
+    	if(b % 2 == 0){
+    		temp1=b+3;
+    	}
+        else{
+        	temp1=b+2;
+        }
+    	if(c % 2 == 0){
+    		temp2=c+3;
+    	}
+    	else{
+    		temp2 = c+2;
+    	}
+    	File.main(args);
+    	
+    	
         window.setContentPane(new Maze());
         window.pack();
         window.setLocation(120, 80);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setVisible(true);
+        
+       
     }
-    
 
     int[][] maze;   // This will create a state of a maze. A maze[i][j] can be
     				// used to represent a wall, path, empty, or visited
@@ -44,16 +78,16 @@ public class Maze extends JPanel implements Runnable {
 
 
     Color[] color;          // an array of colors to be used for our maze values defined earlier.
-    int rows = 101;          // the row of cells in a maze, including the walls
-    int columns = 131;       // number of column cells in a maze, including the walls
+    
+
     int border = 0;         // number of pixels separating maze and non-maze parts  
     int solvespeed = 10;    // we can adjust this value to make is easier to see how the maze is solving.
     int createspeed = 2;	// the same speed adjustment, but for the creation of the maze
     int cellsize = 12;     // the cell size
-
     int width = -1;   // width of the panel holding the maze, created with identifysize()
     int height = -1;  // height of the panel holding the maze, created with identifysize()
-
+    int rows = temp1;          // the row of cells in a maze, including the walls
+    int columns = temp2;       // number of column cells in a maze, including the walls
     int widthtotal;   // same width as before, but without the border area.
     int heighttotal;  // same height as before, but without border area
     int left;         // border for the left side of the maze
@@ -66,7 +100,9 @@ public class Maze extends JPanel implements Runnable {
     // We can retrieve user input for the size of the maze they wish to solve.
 
     // Maze constructor
-    public Maze() {
+
+ public static Thread t;
+	public Maze() {
         color = new Color[] {
             new Color(0,0,0),
             new Color(0,51,153),
@@ -76,7 +112,8 @@ public class Maze extends JPanel implements Runnable {
         };
         setBackground(color[bgcode]);
         setPreferredSize(new Dimension(cellsize*columns, cellsize*rows));
-        new Thread(this).start();
+      t=new Thread(this);
+
     }
 
     // Will prevent paint from being called two times, this method paints the maze and helps with Drawing
@@ -109,7 +146,7 @@ public class Maze extends JPanel implements Runnable {
     		// rooms that are separated by walls. We look at each of 
     		// the separating walls in a random order. Tear down the walls
     		// as long as it does not create a LOOP in the maze.
-          
+        
         if (maze == null){
             maze = new int[rows][columns];
         }
@@ -197,23 +234,24 @@ public class Maze extends JPanel implements Runnable {
     		// Solves the maze with a DFS implementation. Returns true if a 
     		// solution to this maze is found. We considered a maze to be 
     		// solved it it reaches the lower right cell.
-           
     	if (maze[row][col] == empty) {
             maze[row][col] = path;      // adds a cell to a path
             repaint();
-            if (row == rows-2 && col == columns-2)
+            if (row == rows-2 && col == columns-2){
                 return true;  // the path has successfully reached its goal
+            }
             try {Thread.sleep(solvespeed); }
             catch (InterruptedException e) { }
-            if ( MazeSolver(row-1,col)  ||     // this will try to solve the maze by extending the path
-                    MazeSolver(row,col-1)  ||     // in each direction it can
-                    MazeSolver(row+1,col)  ||
-                    MazeSolver(row,col+1) )
-                return true;
+            if (MazeSolver(row-1,col)	||	MazeSolver(row,col-1) ||	MazeSolver(row+1,col) ||	MazeSolver(row,col+1)){   
+            	// this will try to solve the maze by extending the path
+                // in each direction it can
+            	counter++;
+            	return true;
+            }
             // we have reached a dead end, backtrack
             maze[row][col] = visited;   // this will mark visited cells.
             repaint();
-          
+            
         }
         return false;
     }
@@ -234,11 +272,16 @@ public class Maze extends JPanel implements Runnable {
         }
     }
 
-    
+   public void Thread(){
+	 t.start();
+   }
+  
     public void run() {
         //	the purpose of this method is to create a thread that creates a maze and solves it.
         CreateMaze();
+       
         MazeSolver(1,1);
+        System.out.println("Maze has been solved! The travel length of the solve is: "+counter);
     }
   
 }
