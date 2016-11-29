@@ -1,2 +1,2 @@
 # MazeRunner
-Uses Dijkstra Algorithm to quickly solve maze where user inputs 2 points on the maze 
+This program uses a DFS algorithm to solve a maze with a size specified by the user.
