@@ -33,7 +33,7 @@ Mac:
 
 1. Open up terminal
 2. Once terminal is up, go to your destination folder where the java file is located
-3. Then in terminal type `cd`and drag and drop the file into the terminal and hit Enter.
+3. Then in terminal type `cd` and drag and drop the file into the terminal and hit Enter.
 4. Then type:
 
 	`javac Maze.java`
@@ -43,4 +43,12 @@ Mac:
 	`java Maze`
 	
 The program should pop up as a window.
+
+# How to use the program:
+
+In order to use the program, simply run the program with any of the above listed methods, and a prompt will appear asking for user input. Input the Rows and Columns dimensions as desired, and hit enter. An interface should appear verifying that the rows and columns are as the user entered, and then the user will simply click the enter button and the maze should appear and begin the constructing and solving.
+
+# Class Diagram
+
+
 
