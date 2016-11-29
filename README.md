@@ -50,5 +50,5 @@ In order to use the program, simply run the program with any of the above listed
 
 # Class Diagram
 
-
+![alt tag](https://github.com/alieu526/MazeRunner/blob/master/ClassDiagram.png?raw=true)
 
