@@ -12,32 +12,35 @@ There are multiple different options when attempting to run the program.
 
 Windows:
 
-Open up cmd by clicking on Start and search ‘cmd’.
+1. Open up cmd by clicking on Start and search ‘cmd’.
+2. Once cmd is open, find what folder the java file is in.
+3. When found type the location like the example: 
 
-Once cmd is open, find what folder the java file is in.
+	`cd C:\Users\Username\Downloads\`
 
-When found type the location like the example: 
+4. Then type:
 
-`cd C:\Users\Username\Downloads\`
+	`javac Maze.java`
 
-Then type:
+5. and then:
 
-`javac Maze.java`
-
-and then:
-
-`java Maze` 
+	`java Maze` 
 
 The program should pop up as a window.
 
 
 Mac:
-Open up terminal
-Once terminal is up, go to your destination folder where the java file is located
-Then in terminal type ‘cd ’(without quotations) and drag and drop the file into the terminal and hit Enter.
-Then type:
-javac Maze.java
-and then
-java Maze 
+
+1. Open up terminal
+2. Once terminal is up, go to your destination folder where the java file is located
+3. Then in terminal type `cd`and drag and drop the file into the terminal and hit Enter.
+4. Then type:
+
+	`javac Maze.java`
+	
+5. and then:
+
+	`java Maze`
+	
 The program should pop up as a window.
 
