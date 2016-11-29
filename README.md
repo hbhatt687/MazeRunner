@@ -1,7 +1,7 @@
 # MazeRunner
 This program uses a DFS algorithm to solve a maze with a size specified by the user.
 
-How to execute the program:
+# How to execute the program:
 
 
 The first step in starting the program, is making sure that the Java JDK is installed on the device being used. This can be achieved by visiting the following website, and downloading the JDK. 
@@ -9,15 +9,25 @@ The first step in starting the program, is making sure that the Java JDK is inst
 
 
 There are multiple different options when attempting to run the program.
+
 Windows:
+
 Open up cmd by clicking on Start and search ‘cmd’.
+
 Once cmd is open, find what folder the java file is in.
+
 When found type the location like the example: 
-cd C:\Users\Username\Downloads\
+
+`cd C:\Users\Username\Downloads\`
+
 Then type:
-javac Maze.java
-and then
-java Maze 
+
+`javac Maze.java`
+
+and then:
+
+`java Maze` 
+
 The program should pop up as a window.
 
 
